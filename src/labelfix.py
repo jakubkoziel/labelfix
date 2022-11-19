@@ -11,7 +11,7 @@ from urllib.request import urlopen
 import gensim
 import numpy as np
 import pandas as pd
-from keras.callbacks import EarlyStopping
+from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.utils import to_categorical
 from keras.wrappers.scikit_learn import KerasClassifier
 from keras_preprocessing.image import ImageDataGenerator
@@ -27,10 +27,12 @@ from tensorflow.python.client import device_lib
 from src.models.cnn_keras import get_model_cnn
 from src.models.dense_net_keras import get_model_dense
 
-warnings.filterwarnings("ignore", message="F-score is ill-defined and being set to 0.0 in labels with no predicted samples.")
+warnings.filterwarnings("ignore",
+                        message="F-score is ill-defined and being set to 0.0 in labels with no predicted samples.")
 warnings.filterwarnings("ignore", message="Data with input dtype int64 was converted to float64 by MinMaxScaler.")
 
-gpu_avail = np.any(["gpu" in device_lib.list_local_devices()[i].name for i in range(len(device_lib.list_local_devices()))])
+gpu_avail = np.any(
+    ["gpu" in device_lib.list_local_devices()[i].name for i in range(len(device_lib.list_local_devices()))])
 
 
 def _get_indices(pred, y):
@@ -169,7 +171,7 @@ def preprocess_x_y_and_shuffle(X, y):
 
             # Download the file and store it intermediately, so we don't have to do everything in memory.
             request = urlopen(word2vec_download_url)
-            intermediate_file_path = word2vec_file+'.gz'
+            intermediate_file_path = word2vec_file + '.gz'
             with open(intermediate_file_path, 'wb') as file:
                 file.write(request.read())
             # Decompress the file
@@ -317,7 +319,7 @@ def check_dataset(X, y, hyperparams=None):
 
         nn = get_model_dense(**bp)
         nn.fit(X, y, epochs=best_params["epochs"], verbose=0, callbacks=[es], class_weight=class_weight,
-                validation_split=val_split_size if do_val_split else None)
+               validation_split=val_split_size if do_val_split else None)
         pred = nn.predict_proba(X)  # predict test set
 
     # ========================================== if image ==========================================
@@ -331,6 +333,17 @@ def check_dataset(X, y, hyperparams=None):
                            verbose=0, mode='max', baseline=None,
                            restore_best_weights=True)
 
+        # ============= adding weights saving =============
+        if not os.path.exists(os.path.join(os.getcwd(), 'ckpt')):
+            os.makedirs(os.path.join(os.getcwd(), 'ckpt'))
+
+        model_checkpoint = ModelCheckpoint(
+            filepath=os.path.join(os.getcwd(), 'ckpt', "simple_weights-{epoch:03d}-{val_loss:.4f}.hdf5"),
+            save_weights_only=True,
+            monitor='val_categorical_accuracy',
+            mode='max',
+            save_best_only=True)
+
         # Grid Search Loop
         val_split_size = 0.05
         best_params = {"Fixed sized CNN"}
@@ -340,7 +353,7 @@ def check_dataset(X, y, hyperparams=None):
         datagen = ImageDataGenerator(featurewise_center=True, featurewise_std_normalization=True, zca_whitening=False)
         datagen.fit(X)
         X, y = datagen.flow(X, y, batch_size=X.shape[0], shuffle=False).next()
-        nn.fit(X, y, epochs=100, verbose=0, callbacks=[es], class_weight=class_weight, validation_split=val_split_size)
+        nn.fit(X, y, epochs=100, verbose=0, callbacks=[es, model_checkpoint], class_weight=class_weight, validation_split=val_split_size)
         pred = nn.predict_proba(X)  # predict test set
 
     else:

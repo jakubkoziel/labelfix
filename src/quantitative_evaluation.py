@@ -80,44 +80,8 @@ def single_run_over_all(run_number=0):
 
     # Define all data sets. Comment out the ones, which should not be run.
     all_datasets = [
-        # ===================== Bigger and large real-world datasets ======
-        (load_toy_cov(), "forest covertype (10%)"),
-        (load_ccd(), "credit card default"),
-        (load_adult(), "adult"),
-        # ==================== Small toy datasets ========================
-        (load_toy(load_iris), "iris"),
-        (load_toy(load_wine), "wine"),
-        (load_toy(load_breast_cancer), "breast_cancer"),
-        (load_toy(load_digits), "digits"),
-        # ==================== Synthetic datasets ======================
-        (synth_classification(n_samples=10000, n_features=9, n_classes=3, n_informative=9, n_redundant=0, n_repeated=0), "synthetic 1"),
-        (synth_classification(n_samples=10000, n_features=9, n_classes=5, n_informative=9, n_redundant=0, n_repeated=0), "synthetic 2"),
-        (synth_classification(n_samples=10000, n_features=45, n_classes=7, n_informative=45, n_redundant=0, n_repeated=0), "synthetic 3"),
-        (synth_classification(n_samples=10000, n_features=45, n_classes=15, n_informative=45, n_redundant=0, n_repeated=0), "synthetic 4"),
-        (synth_classification(n_samples=10000, n_features=85, n_classes=7, n_informative=85, n_redundant=0, n_repeated=0), "synthetic 5"),
-        (synth_classification(n_samples=10000, n_features=85, n_classes=15, n_informative=85, n_redundant=0, n_repeated=0), "synthetic 5"),
-        # ============== BLOB ============
-        (synth_classification(n_samples=4000, n_features=12, n_classes=12, n_informative=9, n_redundant=1, n_repeated=1, use_blob=True), "synthetic blobs"),
-        # # ======================= KAGGLE ==============================
-        (load_pulsars(), "pulsar_stars"),
-        # Note that SDSS dataset has to be downloaded from kaggle manually https://www.kaggle.com/lucidlenn/sloan-digital-sky-survey
-        # (load_sdss(), "sloan-digital-sky-survey"),
-        # ====================== Natural language =========================
-        # Note that the twitter airline dataset has to be downloaded from kaggle manually https://www.kaggle.com/crowdflower/twitter-airline-sentiment
-        # (load_twitter_airline(), "twitter airline"),
-        (load_sms_spam(), "sms spam"),
-        (load_imdb(), "imdb"),
-        (load_twenty_newsgroup(), "twenty newsgroup"),
-        # ===================== Image datasets ============================
-        (load_svhn(), "svhn"),
-        (load_mnist(), "mnist"),
-        (load_fashion_mnist(), "fashion-mnist"),
+        
         (load_cifar(num=10), "cifar10"),
-        (load_cifar(num=100), "cifar100"),
-        (load_cifar(num=100, subsection=cifar_cls['aquatic_mammals']), "cifar100, subset aqua"),
-        (load_cifar(num=100, subsection=cifar_cls['flowers']), "cifar100, subset flowers"),
-        (load_cifar(num=100, subsection=cifar_cls['household_electrical_devices']), "cifar100, subset household"),
-        (load_cifar(num=100, switch_dict=cifar_cls), "cifar100, at random"),
 
     ]
 
@@ -128,7 +92,7 @@ def single_run_over_all(run_number=0):
         print(tabulate(df, headers='keys', tablefmt='psql'))
 
     # Write to latex
-    latex_path = "../doc/{}run{}.tex".format(datetime.datetime.now(), run_number)
+    latex_path = "..\doc\{}run{}.tex".format(str(datetime.datetime.now()).replace('.', '_').replace(':', '-'), run_number)
     print("Writing results as latex table to {}".format(latex_path))
     if not os.path.exists(os.path.dirname(latex_path)):
         os.makedirs(os.path.dirname(latex_path))
@@ -151,6 +115,6 @@ def single_run_over_all(run_number=0):
 
 
 if __name__ == "__main__":
-    for i in range(5):
+    for i in range(1):
         print("RUN " + str(i))
         single_run_over_all(i)
