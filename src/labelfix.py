@@ -340,7 +340,7 @@ def check_dataset(X, y, hyperparams=None):
         model_checkpoint = ModelCheckpoint(
             filepath=os.path.join(os.getcwd(), 'ckpt', "simple_weights-{epoch:03d}-{val_loss:.4f}.hdf5"),
             save_weights_only=True,
-            monitor='val_categorical_accuracy',
+            monitor='val_acc',
             mode='max',
             save_best_only=True)
 
